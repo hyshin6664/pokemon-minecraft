@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>마크 포켓몬 고르기</title>
+<style>
+:root{--bg:#fff8ef;--card:#ffffff;--ink:#2b2b3a;--sub:#6b6b80;--pink:#ff8fb1;--mint:#7fdcc0;--sky:#8ec5ff;--lemon:#ffe17a;--grape:#c7a6ff;--line:#f0e2d0;--green:#1bd96a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1d1c26;--card:#2a2936;--ink:#f4f2ff;--sub:#b9b6cc;--line:#3b3a4a}}
+:root[data-theme="dark"]{--bg:#1d1c26;--card:#2a2936;--ink:#f4f2ff;--sub:#b9b6cc;--line:#3b3a4a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Malgun Gothic","맑은 고딕",system-ui,sans-serif;line-height:1.45}
+.wrap{max-width:860px;margin:0 auto;padding:16px}
+h1{font-size:30px;text-align:center;margin:18px 0 4px}
+.hi{text-align:center;font-size:20px;color:var(--sub);margin:0 0 18px}
+.stage{display:none;animation:pop .35s ease}
+.stage.on{display:block}
+@keyframes pop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border:3px solid var(--line);border-radius:24px;padding:18px;margin:14px 0;box-shadow:0 6px 0 var(--line)}
+.big{font-size:24px;font-weight:700;text-align:center;margin:6px 0 12px}
+.say{font-size:20px;text-align:center;margin:8px 0}
+img.shot{width:100%;border-radius:16px;display:block;border:3px solid var(--line);background:#ddd;aspect-ratio:16/9;object-fit:cover}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:620px){.vs{grid-template-columns:1fr}}
+.tag{display:inline-block;padding:4px 12px;border-radius:999px;font-weight:700;font-size:16px;color:#2b2b3a}
+.row{display:flex;align-items:center;gap:10px;font-size:19px;margin:8px 0}
+.row .e{font-size:28px;width:38px;text-align:center}
+.star{background:var(--lemon);color:#2b2b3a;border-radius:20px;padding:14px;text-align:center;font-size:24px;font-weight:800}
+.nav{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:18px 0 30px}
+button{font-family:inherit;font-size:20px;font-weight:700;border:0;border-radius:18px;padding:14px 20px;min-height:52px;cursor:pointer;color:#2b2b3a}
+.prev{background:var(--sky)} .next{background:var(--pink)} .talk{background:var(--mint);font-size:17px;padding:8px 14px;min-height:44px}
+.dots{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.dots i{width:12px;height:12px;border-radius:50%;background:var(--line);display:block}
+.dots i.on{background:var(--pink);transform:scale(1.3)}
+/* 그림: 런처 화면 */
+.screen{background:#16181d;border-radius:16px;padding:14px;color:#e6e6e6;min-height:170px;position:relative;font-family:system-ui,sans-serif}
+.screen .bar{display:flex;gap:6px;margin-bottom:12px}.screen .bar i{width:10px;height:10px;border-radius:50%;background:#555;display:block}
+.search{background:#26292f;border-radius:10px;padding:10px 12px;font-size:18px;display:flex;gap:8px;align-items:center}
+.pack{display:flex;gap:12px;align-items:center;background:#26292f;border-radius:12px;padding:10px;margin-top:10px}
+.pack img{width:56px;height:56px;border-radius:10px}
+.gbtn{background:var(--green);color:#0b2914;border-radius:10px;padding:8px 14px;font-weight:800;margin-left:auto;font-size:17px}
+.glow{animation:glow 1.2s infinite;box-shadow:0 0 0 0 rgba(27,217,106,.7)}
+@keyframes glow{0%{box-shadow:0 0 0 0 rgba(27,217,106,.7)}100%{box-shadow:0 0 0 14px rgba(27,217,106,0)}}
+.hand{position:absolute;font-size:38px;right:18px;bottom:6px;animation:tap 1.2s infinite}
+@keyframes tap{50%{transform:translate(-6px,-6px)}}
+.stepno{display:inline-flex;width:44px;height:44px;border-radius:50%;background:var(--pink);color:#2b2b3a;font-weight:900;font-size:24px;align-items:center;justify-content:center;margin-right:8px}
+.applogo{width:90px;height:90px;border-radius:24px;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:48px;margin:6px auto}
+/* 키보드 */
+.keys{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.key{background:var(--card);border:3px solid var(--line);border-radius:18px;padding:12px;text-align:center}
+.kb{display:inline-block;min-width:64px;padding:10px 14px;border-radius:12px;background:#f3f3f7;color:#2b2b3a;border:2px solid #c9c9d6;border-bottom-width:6px;font-weight:900;font-size:26px}
+.key p{margin:8px 0 0;font-size:18px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:620px){.grid2{grid-template-columns:1fr}}
+.cap{font-size:19px;text-align:center;margin:8px 0 2px;font-weight:700}
+.ball{display:inline-block;width:1em;height:1em;border-radius:50%;background:linear-gradient(#ff5b5b 0 46%,#2b2b3a 46% 54%,#fff 54%);border:2px solid #2b2b3a;vertical-align:-3px}
+.credit{font-size:13px;color:var(--sub);text-align:center}
+.credit a{color:var(--sub)}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:9}
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+<div class="wrap">
+  <h1><span class="ball"></span> 마인크래프트 포켓몬 <span class="ball"></span></h1>
+  <p class="hi">윤오야, 둘 중에 뭘 할까?</p>
+
+  <!-- 1. 둘 비교 -->
+  <section class="stage on" data-say="마인크래프트에서 포켓몬을 잡는 게임은 두 가지가 있어. 코블몬이랑 픽셀몬이야.">
+    <div class="card">
+      <div class="big">포켓몬 게임이 2개 있어!</div>
+      <div class="vs">
+        <div>
+          <img class="shot" src="https://cdn.modrinth.com/data/MdwFAVRL/images/1eae6526ac023e1ae700df64895903922d1cba2a_350.webp" alt="코블몬 리자몽">
+          <p class="cap"><span class="tag" style="background:var(--mint)">코블몬</span></p>
+          <p class="say">네모네모 🟩 마크 느낌</p>
+        </div>
+        <div>
+          <img class="shot" src="https://i.ytimg.com/vi/ylqd_6qNMwg/maxresdefault.jpg" alt="픽셀몬">
+          <p class="cap"><span class="tag" style="background:var(--grape)">픽셀몬</span></p>
+          <p class="say">매끈매끈 🎮 포켓몬 게임 느낌</p>
+        </div>
+      </div>
+      <p style="text-align:center"><button class="talk" onclick="speakStage()">🔊 읽어줘</button></p>
+    </div>
+  </section>
+
+  <!-- 2. 비교표 대신 그림 줄 -->
+  <section class="stage" data-say="코블몬은 컴퓨터가 덜 힘들고, 설치가 쉬워. 픽셀몬은 포켓몬이 더 진짜 같지만 컴퓨터가 더 힘들어.">
+    <div class="card">
+      <div class="big">뭐가 달라?</div>
+      <div class="vs">
+        <div class="card" style="margin:0;border-color:var(--mint)">
+          <p class="cap"><span class="tag" style="background:var(--mint)">코블몬</span></p>
+          <div class="row"><span class="e">🪶</span>컴퓨터가 가뿐</div>
+          <div class="row"><span class="e">👍</span>설치 쉬움</div>
+          <div class="row"><span class="e">🟩</span>마크랑 딱 어울림</div>
+          <div class="row"><span class="e">🆕</span>요즘 제일 인기</div>
+        </div>
+        <div class="card" style="margin:0;border-color:var(--grape)">
+          <p class="cap"><span class="tag" style="background:var(--grape)">픽셀몬</span></p>
+          <div class="row"><span class="e">🏋️</span>컴퓨터가 힘듦</div>
+          <div class="row"><span class="e">🤔</span>설치 조금 어려움</div>
+          <div class="row"><span class="e">✨</span>포켓몬이 진짜 같음</div>
+          <div class="row"><span class="e">🏆</span>체육관·할 거리 많음</div>
+        </div>
+      </div>
+      <p style="text-align:center"><button class="talk" onclick="speakStage()">🔊 읽어줘</button></p>
+    </div>
+  </section>
+
+  <!-- 3. 추천 -->
+  <section class="stage" data-say="처음 한다면 코블몬을 추천해! 쉽고 가볍고 재미있어.">
+    <div class="card">
+      <div class="star">⭐ 처음이면 코블몬! ⭐</div>
+      <img class="shot" style="margin-top:14px" src="https://cdn.modrinth.com/data/MdwFAVRL/images/f6a1ac1010bf832d30a9747e2d54ff03ac57c546_350.webp" alt="포켓몬 타기">
+      <p class="say">포켓몬 타고 날아다닐 수도 있어! 🐉</p>
+      <p style="text-align:center"><button class="talk" onclick="speakStage()">🔊 읽어줘</button></p>
+    </div>
+  </section>
+
+  <!-- 4. 준비물 -->
+  <section class="stage" data-say="준비물이야. 컴퓨터에서 하는 마인크래프트 자바 에디션이 있어야 해. 휴대폰이나 닌텐도 스위치에서는 안 돼.">
+    <div class="card">
+      <div class="big">준비물 🎒</div>
+      <div class="grid2">
+        <div class="card" style="margin:0;text-align:center"><div style="font-size:64px">💻⛏️</div><p class="say"><b>컴퓨터 마크</b><br>(자바 에디션)</p></div>
+        <div class="card" style="margin:0;text-align:center"><div style="font-size:64px">📱🎮<span style="color:#ff5b5b">✖</span></div><p class="say">휴대폰·스위치는<br>안 돼요</p></div>
+      </div>
+      <p style="text-align:center"><button class="talk" onclick="speakStage()">🔊 읽어줘</button></p>
+    </div>
+  </section>
+
+  <!-- 5. 설치 1 -->
+  <section class="stage" data-say="설치 첫 번째! 아빠한테 모드린스 앱을 깔아 달라고 해. 초록색 앱이야.">
+    <div class="card">
+      <div class="big"><span class="stepno">1</span>초록 앱 깔기</div>
+      <img src="https://cdn-raw.modrinth.com/app-landing/mr-app-icon.webp" alt="Modrinth" style="width:110px;height:110px;display:block;margin:6px auto;border-radius:24px">
+      <p class="say"><b>Modrinth App</b> (모드린스)</p>
+      <p class="say">👨 아빠랑 같이!</p>
+      <p style="text-align:center"><button class="talk" onclick="speakStage()">🔊 읽어줘</button></p>
+    </div>
+  </section>
+
+  <!-- 6. 설치 2 -->
+  <section class="stage" data-say="두 번째! 검색 칸에 코블몬을 영어로 쓰고, 공식 모드팩을 찾아서 설치 버튼을 눌러.">
+    <div class="card">
+      <div class="big"><span class="stepno">2</span>찾아서 Install</div>
+      <img class="shot" style="aspect-ratio:auto" src="img/step2_modpack.png" alt="코블몬 모드팩">
+      <p class="say">🔍 <b>Cobblemon</b> 검색 ➜ 이거 찾기!</p>
+      <div class="screen" style="min-height:0;margin-top:10px">
+        <div class="pack">
+          <img src="https://cdn.modrinth.com/data/5FFgwNNP/e7f9ee2e9d361623847853fe2ddce42f519ee64f.png" alt="">
+          <div><b>Cobblemon Official Modpack</b></div>
+          <div class="gbtn glow">Install</div>
+        </div>
+      </div>
+      <p style="text-align:center"><button class="talk" onclick="speakStage()">🔊 읽어줘</button></p>
+    </div>
+  </section>
+
+  <!-- 7. 설치 3 -->
+  <section class="stage" data-say="세 번째! 다 받아지면 동그라미 자리의 플레이 버튼을 눌러.">
+    <div class="card">
+      <div class="big"><span class="stepno">3</span>▶ Play 누르기</div>
+      <img class="shot" style="aspect-ratio:auto" src="img/step3_play.png" alt="모드린스 앱 실행 화면">
+      <p class="say">🔴 동그라미 버튼 = <b>▶ Play</b></p>
+      
+      <p style="text-align:center"><button class="talk" onclick="speakStage()">🔊 읽어줘</button></p>
+    </div>
+  </section>
+
+  <section class="stage" data-say="네 번째! 게임이 켜지면 싱글플레이어를 누르고 새 세상을 만들면 시작이야!">
+    <div class="card">
+      <div class="big"><span class="stepno">4</span>Singleplayer 누르면 시작!</div>
+      <img class="shot" style="aspect-ratio:auto" src="img/step4_single.png" alt="코블몬 첫 화면">
+      <p class="say">🎉 새 세상 만들고 출발!</p>
+      <p style="text-align:center"><button class="talk" onclick="speakStage()">🔊 읽어줘</button></p>
+    </div>
+  </section>
+
+  <section class="stage" data-say="설치하는 방법을 영상으로도 볼 수 있어. 아빠랑 같이 봐!">
+    <div class="card">
+      <div class="big">📺 영상으로 보기</div>
+      <div style="position:relative;aspect-ratio:16/9;border-radius:16px;overflow:hidden;border:3px solid var(--line)">
+        <iframe src="https://www.youtube-nocookie.com/embed/uONaY5SdlOY" title="코블몬 설치 가이드" style="position:absolute;inset:0;width:100%;height:100%;border:0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+      </div>
+      <p class="say">👨 아빠랑 같이 보기 · <a href="https://www.youtube.com/watch?v=uONaY5SdlOY" target="_blank" rel="noopener">유튜브에서 열기</a></p>
+      <p style="text-align:center"><button class="talk" onclick="speakStage()">🔊 읽어줘</button></p>
+    </div>
+  </section>
+
+  <!-- 8. 게임: 첫 포켓몬 -->
+  <section class="stage" data-say="게임을 시작하면 첫 번째 포켓몬을 골라. 파이리, 꼬부기, 이상해씨 중에 골라 봐!">
+    <div class="card">
+      <div class="big">첫 포켓몬 고르기</div>
+      <div style="display:flex;justify-content:center;gap:14px;font-size:58px">🔥💧🌿</div>
+      <p class="say">파이리 · 꼬부기 · 이상해씨 …</p>
+      <p style="text-align:center"><button class="talk" onclick="speakStage()">🔊 읽어줘</button></p>
+    </div>
+  </section>
+
+  <!-- 9. 열매로 볼 -->
+  <section class="stage" data-say="나무에 열리는 규리열매를 따서 몬스터볼을 만들어.">
+    <div class="card">
+      <div class="big">열매 따서 몬스터볼 만들기</div>
+      <img class="shot" src="https://cdn.modrinth.com/data/MdwFAVRL/images/b430c9c4966fdc871bc70003ac1081081e51f0ee_350.webp" alt="규리열매 나무">
+      <p class="say">🌳 열매 ➜ <span class="ball"></span> 몬스터볼</p>
+      <p style="text-align:center"><button class="talk" onclick="speakStage()">🔊 읽어줘</button></p>
+    </div>
+  </section>
+
+  <!-- 10. 배틀 -->
+  <section class="stage" data-say="야생 포켓몬을 보면 알 키를 눌러서 내 포켓몬으로 배틀해. 힘이 빠지면 몬스터볼을 던져서 잡아!">
+    <div class="card">
+      <div class="big">배틀하고 잡기!</div>
+      <img class="shot" src="https://cdn.modrinth.com/data/MdwFAVRL/images/b54973381356613a6d091c90175f9fdd4e243536_350.webp" alt="배틀 화면">
+      <p class="say">⚔️ 배틀 ➜ 힘 빠지면 ➜ <span class="ball"></span> 던지기</p>
+      <p style="text-align:center"><button class="talk" onclick="speakStage()">🔊 읽어줘</button></p>
+    </div>
+  </section>
+
+  <!-- 11. 키 -->
+  <section class="stage" data-say="이 버튼들만 알면 돼! 알 키는 포켓몬 꺼내기, 오른쪽 클릭은 몬스터볼 던지기, 위 아래 화살표는 내보낼 포켓몬 고르기야.">
+    <div class="card">
+      <div class="big">이 버튼만 알면 돼! ⌨️</div>
+      <div class="keys">
+        <div class="key"><span class="kb">R</span><p>포켓몬 꺼내기<br>⚔️ 배틀 시작</p></div>
+        <div class="key"><span class="kb">🖱️ 오른쪽</span><p><span class="ball"></span> 볼 던지기</p></div>
+        <div class="key"><span class="kb">↑</span> <span class="kb">↓</span><p>포켓몬 고르기</p></div>
+      </div>
+      <p style="text-align:center"><button class="talk" onclick="speakStage()">🔊 읽어줘</button></p>
+    </div>
+  </section>
+
+  <!-- 12. 치료·보관 -->
+  <section class="stage" data-say="포켓몬이 다치면 힐러로 치료하고, 여섯 마리가 넘으면 피시에 보관해.">
+    <div class="card">
+      <div class="big">치료하고 보관하기</div>
+      <div class="grid2">
+        <div class="card" style="margin:0;text-align:center"><div style="font-size:60px">💖🏥</div><p class="say"><b>힐러</b><br>다치면 치료</p></div>
+        <div class="card" style="margin:0;text-align:center"><div style="font-size:60px">🖥️📦</div><p class="say"><b>PC</b><br>6마리 넘으면 보관</p></div>
+      </div>
+      <p style="text-align:center"><button class="talk" onclick="speakStage()">🔊 읽어줘</button></p>
+    </div>
+  </section>
+
+  <!-- 13. 더 놀거리 -->
+  <section class="stage" data-say="낚시도 하고, 포켓몬 농장도 만들 수 있어. 재미있게 놀아!">
+    <div class="card">
+      <div class="big">이것도 할 수 있어!</div>
+      <div class="grid2">
+        <div><img class="shot" src="https://cdn.modrinth.com/data/MdwFAVRL/images/f24812cd0c943e366c910f9ecd66474d2640dc40_350.webp" alt="낚시"><p class="cap">🎣 낚시</p></div>
+        <div><img class="shot" src="https://cdn.modrinth.com/data/MdwFAVRL/images/eb25f5aeb1e58cc47a10bbff1854658d668283ed_350.webp" alt="포켓몬 목장"><p class="cap">🏡 포켓몬 목장</p></div>
+      </div>
+      <div class="star" style="margin-top:14px">🎉 재미있게 놀아! 🎉</div>
+      <p style="text-align:center"><button class="talk" onclick="speakStage()">🔊 읽어줘</button></p>
+    </div>
+    <p class="credit">사진: <a href="https://modrinth.com/mod/cobblemon">Cobblemon · Modrinth</a> · 픽셀몬 사진·영상: YouTube</p>
+  </section>
+
+  <div class="nav">
+    <button class="prev" onclick="go(-1)">◀ 이전</button>
+    <div class="dots" id="dots"></div>
+    <button class="next" onclick="go(1)">다음 ▶</button>
+  </div>
+</div>
+<script>
+const stages=[...document.querySelectorAll('.stage')];let cur=0,gen=0;
+const dots=document.getElementById('dots');
+stages.forEach(()=>dots.appendChild(document.createElement('i')));
+function show(){stages.forEach((s,i)=>s.classList.toggle('on',i===cur));[...dots.children].forEach((d,i)=>d.classList.toggle('on',i===cur));
+  document.querySelector('.prev').style.visibility=cur?'visible':'hidden';
+  document.querySelector('.next').textContent=cur===stages.length-1?'처음으로 ↺':'다음 ▶';
+  if(cur===stages.length-1)confetti();window.scrollTo({top:0,behavior:'smooth'});}
+function go(d){stopTalk();cur=(cur+d+stages.length)%stages.length;show();}
+function stopTalk(){gen++;try{speechSynthesis.cancel()}catch(e){}}
+let keep;
+function speakStage(){stopTalk();const my=gen;const text=stages[cur].dataset.say||'';
+  const parts=text.split(/(?<=[.!?])\s*/).filter(Boolean);
+  let ko=null;try{ko=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.startsWith('ko'))}catch(e){}
+  clearInterval(keep);keep=setInterval(()=>{if(speechSynthesis.speaking){speechSynthesis.pause();speechSynthesis.resume()}},10000);
+  const next=i=>{if(my!==gen||i>=parts.length){clearInterval(keep);return}
+    const u=new SpeechSynthesisUtterance(parts[i]);u.lang='ko-KR';u.pitch=1.6;u.rate=1.02;if(ko)u.voice=ko;
+    u.onend=()=>next(i+1);speechSynthesis.speak(u);};next(0);}
+try{speechSynthesis.onvoiceschanged=()=>{}}catch(e){}
+function confetti(){const c=document.getElementById('confetti'),x=c.getContext('2d');c.width=innerWidth;c.height=innerHeight;
+  const cols=['#ff8fb1','#7fdcc0','#8ec5ff','#ffe17a','#c7a6ff'];
+  const p=Array.from({length:140},()=>({x:Math.random()*c.width,y:-20-Math.random()*c.height*.5,s:6+Math.random()*8,v:2+Math.random()*3,r:Math.random()*6,c:cols[Math.random()*5|0]}));
+  let t=0;(function f(){x.clearRect(0,0,c.width,c.height);p.forEach(q=>{q.y+=q.v;q.r+=.1;x.save();x.translate(q.x,q.y);x.rotate(q.r);x.fillStyle=q.c;x.fillRect(-q.s/2,-q.s/2,q.s,q.s*.6);x.restore()});
+    if(++t<220)requestAnimationFrame(f);else x.clearRect(0,0,c.width,c.height)})();}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(1);if(e.key==='ArrowLeft')go(-1)});
+show();
+</script>
+</body>
+</html>
